@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #f9f9f9, #e0e0e0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #e6f3ff;
+            border: 2px solid #b3d9ff;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background: #ff9500;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #e68900;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        #todoLists li, #viewTasks li {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff9500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #todoLists li strong {
+            display: block;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        #todoLists li .code {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        a {
+            color: #ff9500;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        p {
+            text-align: center;
+            color: #555;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="login" class="container">
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPass" placeholder="Passwort">
+        <button onclick="demoLogin()">Login</button>
+        <p>Noch kein Konto? <a href="#" onclick="showSignup()">Registrieren</a></p>
+    </div>
+
+    <div id="signup" class="container hidden">
+        <h2>Registrieren</h2>
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPass" placeholder="Passwort">
+        <button onclick="demoSignup()">Registrieren</button>
+        <p>Bereits registriert? <a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+
+    <div id="dashboard" class="container hidden">
+        <h2>Willkommen, <span id="userName"></span></h2>
+        <h3>Todo Listen</h3>
+        <ul id="todoLists"></ul>
+        <button onclick="showCreate()">Erstelle eine neue Todo Liste</button>
+        <button onclick="showLoad()">Todo Liste laden</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div id="create" class="container hidden">
+        <h2>Erstelle eine neue Todo Liste</h2>
+        <input type="text" id="listName" placeholder="Name der Liste">
+        <label>ToDo's:</label>
+        <textarea id="tasks" placeholder="Beispiel text im Todo&#10;Ein weiterer Task..."></textarea>
+        <button onclick="saveList()">Speichern</button>
+        <button id="codeBtn" onclick="generateShareCode()" class="hidden">Code speichern</button>
+        <p id="shareCode" class="hidden"></p>
+        <button onclick="showDashboard()">Zurück</button>
+    </div>
+
+    <div id="load" class="container hidden">
+        <h2>Todo Liste laden</h2>
+        <label>Gib den Todo-Code ein:</label>
+        <input type="text" id="loadCode" placeholder="Code eingeben">
+        <button onclick="loadList()">Laden</button>
+        <button onclick="showDashboard()">Zurück</button>
+    </div>
+
+    <div id="todoView" class="container hidden">
+        <h2 id="viewTitle">Todo Liste</h2>
+        <ul id="viewTasks"></ul>
+        <p id="viewCode"></p>
+        <textarea id="addTask" placeholder="Neue Aufgabe hinzufügen"></textarea>
+        <button onclick="addTaskToList()">Hinzufügen</button>
+        <button onclick="showDashboard()">Zurück</button>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentNewListId = null;
+        let sharedLists = {};
+
+        function initStorage() {
+            if (!localStorage.getItem('sharedLists')) {
+                localStorage.setItem('sharedLists', '{}');
+            }
+            sharedLists = JSON.parse(localStorage.getItem('sharedLists'));
+        }
+
+        function demoLogin() {
+            currentUser = { email: 'demo@demo.com', lists: [] };
+            document.getElementById('userName').textContent = 'demo@demo.com';
+            showDashboard();
+        }
+
+        function demoSignup() {
+            currentUser = { email: 'demo@demo.com', lists: [] };
+            document.getElementById('userName').textContent = 'demo@demo.com';
+            showDashboard();
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function showLogin() { showView('login'); }
+        function showSignup() { showView('signup'); }
+        function showDashboard() {
+            showView('dashboard');
+            loadUserLists();
+        }
+        function showCreate() {
+            currentNewListId = null;
+            document.getElementById('codeBtn').classList.add('hidden');
+            document.getElementById('shareCode').classList.add('hidden');
+            document.getElementById('listName').value = '';
+            document.getElementById('tasks').value = '';
+            showView('create');
+        }
+        function showLoad() { showView('load'); }
+
+        function showTodoView(id) {
+            const list = currentUser.lists.find(l => l.id === id);
+            if (!list) return;
+            currentList = list;
+            document.getElementById('viewTitle').textContent = list.name;
+            const ul = document.getElementById('viewTasks');
+            ul.innerHTML = '';
+            list.tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task;
+                ul.appendChild(li);
+            });
+            document.getElementById('viewCode').textContent = list.code ? `Code: ${list.code}` : 'Kein Share Code';
+            document.getElementById('addTask').value = '';
+            showView('todoView');
+        }
+
+        function logout() {
+            currentUser = null;
+            showLogin();
+        }
+
+        function loadUserLists() {
+            const ul = document.getElementById('todoLists');
+            ul.innerHTML = '';
+            currentUser.lists.forEach(list => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>${list.name}</strong>
+                    <div class="code">${list.code ? `Code: ${list.code}` : 'Kein Code'}</div>
+                    <button onclick="showTodoView(${list.id})">Öffnen</button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function saveList() {
+            const name = document.getElementById('listName').value.trim();
+            const tasksText = document.getElementById('tasks').value;
+            const tasks = tasksText.split('\n').map(t => t.trim()).filter(t => t);
+            if (!name || tasks.length === 0) return alert('Bitte fülle Name und mindestens einen Task aus.');
+            const id = Date.now();
+            const list = { id, name, tasks };
+            currentUser.lists.push(list);
+            currentNewListId = id;
+            document.getElementById('codeBtn').classList.remove('hidden');
+            loadUserLists();
+            alert('Liste erfolgreich erstellt!');
+        }
+
+        function generateShareCode() {
+            if (!currentNewListId) return alert('Zuerst speichern!');
+            const list = currentUser.lists.find(l => l.id === currentNewListId);
+            if (list.code) return alert('Code bereits generiert.');
+            const code = generateCode();
+            list.code = code;
+            sharedLists[code] = { ...list };
+            localStorage.setItem('sharedLists', JSON.stringify(sharedLists));
+            document.getElementById('shareCode').textContent = `Code: ${code}`;
+            document.getElementById('shareCode').classList.remove('hidden');
+            document.getElementById('codeBtn').textContent = 'Code generiert';
+            document.getElementById('codeBtn').disabled = true;
+            alert('Share Code generiert!');
+        }
+
+        function generateCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        function loadList() {
+            const code = document.getElementById('loadCode').value.trim().toUpperCase();
+            if (!code) return alert('Bitte Code eingeben.');
+            const sharedStr = localStorage.getItem('sharedLists') || '{}';
+            const shared = JSON.parse(sharedStr);
+            if (!shared[code]) return alert('Code nicht gefunden.');
+            const sharedList = shared[code];
+            const hasIt = currentUser.lists.some(l => l.code === code);
+            let listId;
+            if (!hasIt) {
+                const newId = Date.now();
+                const userList = { ...sharedList, id: newId };
+                currentUser.lists.push(userList);
+                listId = newId;
+            } else {
+                listId = currentUser.lists.find(l => l.code === code).id;
+            }
+            showTodoView(listId);
+        }
+
+        let currentList = null;
+        function addTaskToList() {
+            const text = document.getElementById('addTask').value.trim();
+            if (!text) return alert('Bitte Task eingeben.');
+            currentList.tasks.push(text);
+            if (currentList.code) {
+                sharedLists[currentList.code] = { ...currentList };
+                localStorage.setItem('sharedLists', JSON.stringify(sharedLists));
+            }
+            document.getElementById('addTask').value = '';
+            showTodoView(currentList.id);
+        }
+
+        // Initialize
+        initStorage();
+        showLogin();
+    </script>
+</body>
+</html>
