@@ -1,5 +1,4 @@
 node_modules/
-android/
 *.keystore
 *.jks
 *.p12
@@ -7,6 +6,11 @@ android/
 *.crt
 *.cer
 .DS_Store
-android/local.properties
 .env
 .env.*
+
+# Android generated/local files
+android/.gradle/
+android/build/
+android/**/build/
+android/local.properties
