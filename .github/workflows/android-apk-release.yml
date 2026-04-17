@@ -1,0 +1,70 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 35 SDK components
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Android project exists
+        run: npm run cap:ensure-android
+
+      - name: Sync web assets
+        run: npm run cap:sync
+
+      - name: Build debug APK
+        run: npm run apk:debug
+
+      - name: Build release APK
+        run: npm run apk:release
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quizforge-apks
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Attach APKs to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-unsigned.apk

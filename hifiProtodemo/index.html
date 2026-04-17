@@ -1,314 +1,136 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #f9f9f9, #e0e0e0);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            background: #e6f3ff;
-            border: 2px solid #b3d9ff;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h3 {
-            color: #555;
-            margin-bottom: 15px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        button {
-            background: #ff9500;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #e68900;
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        #todoLists li, #viewTasks li {
-            background: white;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ff9500;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        #todoLists li strong {
-            display: block;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        #todoLists li .code {
-            color: #666;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        a {
-            color: #ff9500;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .hidden {
-            display: none;
-        }
-        p {
-            text-align: center;
-            color: #555;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>QuizForge Mobile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <div id="login" class="container">
-        <h2>Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPass" placeholder="Passwort">
-        <button onclick="demoLogin()">Login</button>
-        <p>Noch kein Konto? <a href="#" onclick="showSignup()">Registrieren</a></p>
+  <div class="bg-shape shape-one" aria-hidden="true"></div>
+  <div class="bg-shape shape-two" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="card hero reveal">
+      <div>
+        <p class="eyebrow">Mobile AI Quiz Generator</p>
+        <h1>QuizForge</h1>
+        <p class="hero-copy">Generate beautiful quizzes, switch modes instantly, and study with your Groq-powered assistant.</p>
+      </div>
+      <button id="openSettingsBtn" class="secondary-btn" type="button">Groq Setup</button>
+    </header>
+
+    <section class="mode-picker reveal" aria-label="Quiz modes">
+      <button class="mode-btn active" data-mode="mcq" type="button">
+        <span class="mode-title">Multiple Choice</span>
+        <span class="mode-subtitle">Fast exam-style prep</span>
+      </button>
+      <button class="mode-btn" data-mode="fib" type="button">
+        <span class="mode-title">Fill In The Blank</span>
+        <span class="mode-subtitle">Recall and precision</span>
+      </button>
+      <button class="mode-btn" data-mode="learn" type="button">
+        <span class="mode-title">Learn + Quiz</span>
+        <span class="mode-subtitle">Teach first, test second</span>
+      </button>
+    </section>
+
+    <section class="card reveal">
+      <form id="generatorForm" class="generator-form">
+        <label class="field-label" for="topicInput">Topic</label>
+        <input id="topicInput" class="text-input" type="text" placeholder="Examples: Human Anatomy, JavaScript Basics, World History" required>
+
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="difficultySelect">Difficulty</label>
+            <select id="difficultySelect" class="text-input">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="questionCountRange">Questions <span id="countLabel">6</span></label>
+            <input id="questionCountRange" type="range" min="3" max="12" value="6">
+          </div>
+        </div>
+
+        <button id="generateBtn" class="primary-btn" type="submit">Generate Quiz</button>
+      </form>
+      <p id="statusText" class="status" aria-live="polite">Ready to generate your first quiz.</p>
+    </section>
+
+    <section id="lessonCard" class="card hidden reveal">
+      <div class="section-head">
+        <h2 id="lessonTitle">Lesson</h2>
+      </div>
+      <article id="lessonContent" class="lesson-content"></article>
+      <button id="startLearnQuizBtn" class="primary-btn" type="button">Start Lesson Quiz</button>
+    </section>
+
+    <section id="quizCard" class="card hidden reveal">
+      <div class="quiz-meta">
+        <p id="progressLabel" class="progress-pill">Question 1 / 1</p>
+        <p id="modeLabel" class="mode-pill">Multiple Choice</p>
+      </div>
+
+      <h2 id="questionText" class="question-text">Question appears here.</h2>
+      <p id="questionHint" class="question-hint"></p>
+
+      <div id="optionsWrap" class="options-wrap"></div>
+
+      <div class="quiz-actions">
+        <button id="prevBtn" class="secondary-btn" type="button">Back</button>
+        <button id="nextBtn" class="secondary-btn" type="button">Next</button>
+        <button id="finishBtn" class="primary-btn hidden" type="button">Finish Quiz</button>
+      </div>
+    </section>
+
+    <section id="resultsCard" class="card hidden reveal">
+      <div class="section-head">
+        <h2>Results</h2>
+        <p id="scoreBadge" class="score-badge">0 / 0</p>
+      </div>
+      <p id="scoreSummary" class="score-summary"></p>
+      <div id="reviewList" class="review-list"></div>
+      <button id="restartBtn" class="primary-btn" type="button">Generate Another Quiz</button>
+    </section>
+
+    <section class="card chat-card reveal">
+      <div class="section-head">
+        <h2>Study Copilot</h2>
+        <p class="chat-power">Powered by Groq</p>
+      </div>
+      <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+      <form id="chatForm" class="chat-form">
+        <input id="chatInput" class="text-input" type="text" placeholder="Ask for hints, explanations, memory tricks..." required>
+        <button id="chatSendBtn" class="primary-btn" type="submit">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <section id="settingsModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-content">
+      <h2 id="settingsTitle">Groq Connection</h2>
+      <p class="modal-copy">Your key stays on this device in local storage and is never committed to git.</p>
+
+      <label class="field-label" for="apiKeyInput">Groq API Key</label>
+      <input id="apiKeyInput" class="text-input" type="password" placeholder="gsk_..." autocomplete="off">
+
+      <label class="field-label" for="modelInput">Model Name</label>
+      <input id="modelInput" class="text-input" type="text" placeholder="llama-3.3-70b-versatile" autocomplete="off">
+
+      <div class="modal-actions">
+        <button id="closeSettingsBtn" class="secondary-btn" type="button">Cancel</button>
+        <button id="saveSettingsBtn" class="primary-btn" type="button">Save</button>
+      </div>
     </div>
+  </section>
 
-    <div id="signup" class="container hidden">
-        <h2>Registrieren</h2>
-        <input type="email" id="signupEmail" placeholder="Email">
-        <input type="password" id="signupPass" placeholder="Passwort">
-        <button onclick="demoSignup()">Registrieren</button>
-        <p>Bereits registriert? <a href="#" onclick="showLogin()">Login</a></p>
-    </div>
-
-    <div id="dashboard" class="container hidden">
-        <h2>Willkommen, <span id="userName"></span></h2>
-        <h3>Todo Listen</h3>
-        <ul id="todoLists"></ul>
-        <button onclick="showCreate()">Erstelle eine neue Todo Liste</button>
-        <button onclick="showLoad()">Todo Liste laden</button>
-        <button onclick="logout()">Logout</button>
-    </div>
-
-    <div id="create" class="container hidden">
-        <h2>Erstelle eine neue Todo Liste</h2>
-        <input type="text" id="listName" placeholder="Name der Liste">
-        <label>ToDo's:</label>
-        <textarea id="tasks" placeholder="Beispiel text im Todo&#10;Ein weiterer Task..."></textarea>
-        <button onclick="saveList()">Speichern</button>
-        <button id="codeBtn" onclick="generateShareCode()" class="hidden">Code speichern</button>
-        <p id="shareCode" class="hidden"></p>
-        <button onclick="showDashboard()">Zurück</button>
-    </div>
-
-    <div id="load" class="container hidden">
-        <h2>Todo Liste laden</h2>
-        <label>Gib den Todo-Code ein:</label>
-        <input type="text" id="loadCode" placeholder="Code eingeben">
-        <button onclick="loadList()">Laden</button>
-        <button onclick="showDashboard()">Zurück</button>
-    </div>
-
-    <div id="todoView" class="container hidden">
-        <h2 id="viewTitle">Todo Liste</h2>
-        <ul id="viewTasks"></ul>
-        <p id="viewCode"></p>
-        <textarea id="addTask" placeholder="Neue Aufgabe hinzufügen"></textarea>
-        <button onclick="addTaskToList()">Hinzufügen</button>
-        <button onclick="showDashboard()">Zurück</button>
-    </div>
-
-    <script>
-        let currentUser = null;
-        let currentNewListId = null;
-        let sharedLists = {};
-
-        function initStorage() {
-            if (!localStorage.getItem('sharedLists')) {
-                localStorage.setItem('sharedLists', '{}');
-            }
-            sharedLists = JSON.parse(localStorage.getItem('sharedLists'));
-        }
-
-        function demoLogin() {
-            currentUser = { email: 'demo@demo.com', lists: [] };
-            document.getElementById('userName').textContent = 'demo@demo.com';
-            showDashboard();
-        }
-
-        function demoSignup() {
-            currentUser = { email: 'demo@demo.com', lists: [] };
-            document.getElementById('userName').textContent = 'demo@demo.com';
-            showDashboard();
-        }
-
-        function showView(viewId) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-        }
-
-        function showLogin() { showView('login'); }
-        function showSignup() { showView('signup'); }
-        function showDashboard() {
-            showView('dashboard');
-            loadUserLists();
-        }
-        function showCreate() {
-            currentNewListId = null;
-            document.getElementById('codeBtn').classList.add('hidden');
-            document.getElementById('shareCode').classList.add('hidden');
-            document.getElementById('listName').value = '';
-            document.getElementById('tasks').value = '';
-            showView('create');
-        }
-        function showLoad() { showView('load'); }
-
-        function showTodoView(id) {
-            const list = currentUser.lists.find(l => l.id === id);
-            if (!list) return;
-            currentList = list;
-            document.getElementById('viewTitle').textContent = list.name;
-            const ul = document.getElementById('viewTasks');
-            ul.innerHTML = '';
-            list.tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.textContent = task;
-                ul.appendChild(li);
-            });
-            document.getElementById('viewCode').textContent = list.code ? `Code: ${list.code}` : 'Kein Share Code';
-            document.getElementById('addTask').value = '';
-            showView('todoView');
-        }
-
-        function logout() {
-            currentUser = null;
-            showLogin();
-        }
-
-        function loadUserLists() {
-            const ul = document.getElementById('todoLists');
-            ul.innerHTML = '';
-            currentUser.lists.forEach(list => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <strong>${list.name}</strong>
-                    <div class="code">${list.code ? `Code: ${list.code}` : 'Kein Code'}</div>
-                    <button onclick="showTodoView(${list.id})">Öffnen</button>
-                `;
-                ul.appendChild(li);
-            });
-        }
-
-        function saveList() {
-            const name = document.getElementById('listName').value.trim();
-            const tasksText = document.getElementById('tasks').value;
-            const tasks = tasksText.split('\n').map(t => t.trim()).filter(t => t);
-            if (!name || tasks.length === 0) return alert('Bitte fülle Name und mindestens einen Task aus.');
-            const id = Date.now();
-            const list = { id, name, tasks };
-            currentUser.lists.push(list);
-            currentNewListId = id;
-            document.getElementById('codeBtn').classList.remove('hidden');
-            loadUserLists();
-            alert('Liste erfolgreich erstellt!');
-        }
-
-        function generateShareCode() {
-            if (!currentNewListId) return alert('Zuerst speichern!');
-            const list = currentUser.lists.find(l => l.id === currentNewListId);
-            if (list.code) return alert('Code bereits generiert.');
-            const code = generateCode();
-            list.code = code;
-            sharedLists[code] = { ...list };
-            localStorage.setItem('sharedLists', JSON.stringify(sharedLists));
-            document.getElementById('shareCode').textContent = `Code: ${code}`;
-            document.getElementById('shareCode').classList.remove('hidden');
-            document.getElementById('codeBtn').textContent = 'Code generiert';
-            document.getElementById('codeBtn').disabled = true;
-            alert('Share Code generiert!');
-        }
-
-        function generateCode() {
-            return Math.random().toString(36).substring(2, 10).toUpperCase();
-        }
-
-        function loadList() {
-            const code = document.getElementById('loadCode').value.trim().toUpperCase();
-            if (!code) return alert('Bitte Code eingeben.');
-            const sharedStr = localStorage.getItem('sharedLists') || '{}';
-            const shared = JSON.parse(sharedStr);
-            if (!shared[code]) return alert('Code nicht gefunden.');
-            const sharedList = shared[code];
-            const hasIt = currentUser.lists.some(l => l.code === code);
-            let listId;
-            if (!hasIt) {
-                const newId = Date.now();
-                const userList = { ...sharedList, id: newId };
-                currentUser.lists.push(userList);
-                listId = newId;
-            } else {
-                listId = currentUser.lists.find(l => l.code === code).id;
-            }
-            showTodoView(listId);
-        }
-
-        let currentList = null;
-        function addTaskToList() {
-            const text = document.getElementById('addTask').value.trim();
-            if (!text) return alert('Bitte Task eingeben.');
-            currentList.tasks.push(text);
-            if (currentList.code) {
-                sharedLists[currentList.code] = { ...currentList };
-                localStorage.setItem('sharedLists', JSON.stringify(sharedLists));
-            }
-            document.getElementById('addTask').value = '';
-            showTodoView(currentList.id);
-        }
-
-        // Initialize
-        initStorage();
-        showLogin();
-    </script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,6 @@
+{
+  "appId": "com.quizforge.mobile",
+  "appName": "QuizForge Mobile",
+  "webDir": "hifiProtodemo",
+  "bundledWebRuntime": false
+}

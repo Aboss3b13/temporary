@@ -1,0 +1,12 @@
+node_modules/
+android/
+*.keystore
+*.jks
+*.p12
+*.pem
+*.crt
+*.cer
+.DS_Store
+android/local.properties
+.env
+.env.*
